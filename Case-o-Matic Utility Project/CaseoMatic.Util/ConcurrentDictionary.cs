@@ -4,18 +4,21 @@ using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Text;
 
-namespace Caseomatic.Util
+namespace CaseoMatic.Util
 {
-    [Synchronization]
-    public class ConcurrentDictionary<TKey, TValue> : ContextBoundObject
+    public class ConcurrentDictionary<TKey, TValue>
     {
         private readonly Dictionary<TKey, TValue> dictionary;
+        private object lockObj;
 
         public TKey[] AllKeys
         {
             get
             {
-                return dictionary.Keys.ToArray();
+                lock (lockObj)
+                {
+                    return dictionary.Keys.ToArray();
+                }
             }
         }
         public TValue[] AllValues
@@ -30,41 +33,77 @@ namespace Caseomatic.Util
         {
             get
             {
-                return dictionary.Count;
+                lock (lockObj)
+                {
+                    return dictionary.Count;
+                }
             }
         }
 
         public TValue this[TKey key]
         {
-            get { return dictionary[key]; }
-            set { dictionary[key] = value; }
+            get
+            {
+                lock (lockObj)
+                {
+                    return dictionary[key];
+                }
+            }
+            set
+            {
+                lock (lockObj)
+                {
+                    dictionary[key] = value;
+                }
+            }
         }
 
         public ConcurrentDictionary(int estimatedValues = 300)
         {
             dictionary = new Dictionary<TKey, TValue>(estimatedValues);
+            lockObj = new object();
         }
 
         public void Add(TKey key, TValue value)
         {
-            dictionary.Add(key, value);
+            lock (lockObj)
+            {
+                dictionary.Add(key, value);
+            }
         }
         public void AddRange(KeyValuePair<TKey, TValue>[] keyValuePairs)
         {
-            foreach (var keyValuePair in keyValuePairs)
+            lock (lockObj)
             {
-                dictionary.Add(keyValuePair.Key, keyValuePair.Value);
+                foreach (var keyValuePair in keyValuePairs)
+                {
+                    dictionary.Add(keyValuePair.Key, keyValuePair.Value);
+                }
             }
         }
 
         public bool Remove(TKey key)
         {
-            return dictionary.Remove(key);
+            lock (lockObj)
+            {
+                return dictionary.Remove(key);
+            }
         }
 
         public bool ContainsKey(TKey key)
         {
-            return dictionary.ContainsKey(key);
+            lock (lockObj)
+            {
+                return dictionary.ContainsKey(key);
+            }
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            lock (lockObj)
+            {
+                return dictionary.TryGetValue(key, out value);
+            }
         }
 
         public KeyValuePair<TKey, TValue>FirstOrDefault(Func<KeyValuePair<TKey, TValue>, bool> predicate)
@@ -74,7 +113,10 @@ namespace Caseomatic.Util
 
         public void Clear()
         {
-            dictionary.Clear();
+            lock (lockObj)
+            {
+                dictionary.Clear();
+            }
         }
     }
 }

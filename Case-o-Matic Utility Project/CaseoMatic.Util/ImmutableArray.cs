@@ -2,13 +2,14 @@
 using System.Globalization;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Collections;
+using System;
 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 
-namespace System.Collections.Immutable
+namespace CaseoMatic.Util
 {
     /// <summary>
     /// A readonly array with O(1) indexable lookup time.
