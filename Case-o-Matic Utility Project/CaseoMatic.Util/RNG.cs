@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaseoMatic.Util
+namespace Caseomatic.Util
 {
     /// <summary>
     /// A random rumber generator that determines if a condition is filled.

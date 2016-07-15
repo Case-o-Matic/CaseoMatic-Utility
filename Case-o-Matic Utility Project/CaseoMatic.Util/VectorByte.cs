@@ -4,22 +4,36 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace CaseoMatic.Util
+namespace Caseomatic.Util
 {
     /// <summary>
     /// A byte that is used to store bit data.
     /// </summary>
-    [StructLayout(LayoutKind.Auto, Pack = 1)]
     public struct VectorByte
     {
+        private const byte byteBitSize = 8;
         private byte b;
 
         /// <summary>
         /// The byte where the data is stored in.
         /// </summary>
-        public byte Byte
+        public byte Value
         {
             get { return b; }
+        }
+
+        public bool this[int index]
+        {
+            get
+            {
+                CheckIndex(ref index);
+                return GetBitAtIndex(index, b);
+            }
+            set
+            {
+                CheckIndex(ref index);
+                SetBitAtIndex(index, value, ref b);
+            }
         }
 
         /// <summary>
@@ -36,9 +50,9 @@ namespace CaseoMatic.Util
         /// </summary>
         /// <param name="index">The index of the stored value.</param>
         /// <param name="value">The value that should be written into the byte.</param>
-        public void WriteBool(byte index, bool value)
+        public void WriteBool(int index, bool value)
         {
-            Write(index, (byte)(value ? 1 : 0));
+            this[index] = value;
         }
 
         /// <summary>
@@ -46,9 +60,21 @@ namespace CaseoMatic.Util
         /// </summary>
         /// <param name="index">The index of the stored value.</param>
         /// <param name="value">The value that should be written into the byte.</param>
-        public void WriteByte(byte index, byte value)
+        /// <returns>Returns the length of the written value in bits.</returns>
+        public byte WriteByte(int index, byte value)
         {
-            Write(index, value);
+            CheckIndex(ref index);
+
+            byte length = GetLengthInBits(value);
+            CheckOverflow(index, length, value);
+
+            for (int i = index; i < index + length; i++)
+            {
+                var bit = GetBitAtIndex(i - index, value); // i - index = Iteration of "value" starting from 0 (and not "index" which is addressed at "b")
+                SetBitAtIndex(i, bit, ref b);
+            }
+
+            return length;
         }
 
         /// <summary>
@@ -56,47 +82,87 @@ namespace CaseoMatic.Util
         /// </summary>
         /// <param name="index">The index of the requested value.</param>
         /// <returns>Returns the requested value.</returns>
-        public bool ReadBool(byte index)
+        public bool ReadBool(int index)
         {
-            return Read(index, 1) != 0;
+            return this[index];
         }
         /// <summary>
-        /// Reads a byte number from the bste at the specific index.
+        /// Reads a byte number from the byte at the specific index.
         /// </summary>
         /// <param name="index">The index of the stored value.</param>
         /// <param name="length">The length of the requested value.</param>
         /// <returns>Returns the requested value.</returns>
-        public byte ReadByte(byte index, byte length)
+        public byte ReadByte(int index, byte length)
         {
-            return Read(index, length);
-        }
+            CheckIndex(ref index);
 
-        private void Write(byte index, byte value)
-        {
-            byte newValue = 0;
-            for (byte i = index; i < sizeof(byte); i++)
-            {
-                var bit = (value & (1 << i)) != 0;
-                if (bit)
-                    newValue |= (byte)(1 << i);
-            }
-
-            b |= (byte)(newValue << index);
-        }
-        private byte Read(byte index, byte length)
-        {
             byte value = 0;
-            for (int i = 0; i < sizeof(byte); i++)
+            for (int i = index; i < index + length; i++)
             {
-                var bit = (b & (1 << i)) != 0;
-                if (bit)
-                {
-                    var orValue = (byte)((bit ? 1 : 0) << i);
-                    value |= orValue;
-                }
+                value |= (byte)((GetBitAtIndex(i, b) ? 1 : 0) << i - index);
             }
 
             return value;
+        }
+
+        public override string ToString()
+        {
+            return FromByteToString(b);
+        }
+
+        public static implicit operator byte (VectorByte vector)
+        {
+            return vector.b;
+        }
+
+        private bool GetBitAtIndex(int index, byte value)
+        {
+            return (value & (1 << index)) != 0;
+        }
+        private void SetBitAtIndex(int index, bool bit, ref byte value)
+        {
+            value |= (byte)((bit ? 1 : 0) << index);
+        }
+
+        private byte GetLengthInBits(byte value)
+        {
+            // Example: 01001000
+            // From left to right every 0-bit is counted. The first time a 1-bit is encountered the iteration stops.
+            // 3 0-bits means = 8 - 3 = 5 bits are used by the byte "value".
+
+            byte sizeInBits = 0;
+            for (int i = byteBitSize; i > 0; i--)
+            {
+                if (GetBitAtIndex(i - 1, value))
+                    break;
+                else
+                    sizeInBits++;
+            }
+
+            return (byte)(byteBitSize - sizeInBits);
+        }
+
+        private string FromByteToString(byte value) // Set private
+        {
+            var stringBuilder = new StringBuilder();
+            for (int i = byteBitSize; i >= 0; i--)
+                stringBuilder.Append(GetBitAtIndex((byte)i, value) ? "1" : "0");
+
+            return stringBuilder.ToString();
+        }
+
+        private void CheckIndex(ref int index)
+        {
+            if (index < 1 || index > byteBitSize)
+                throw new IndexOutOfRangeException("The index " + index + " is invalid. Must be between 1 and " + byteBitSize);
+            index -= 1;
+        }
+        private void CheckOverflow(int index, byte length, byte value)
+        {
+            //var result = (byte)(b & (value << index));
+            //Console.WriteLine(result + ", " + FromByteToString(result));
+            //if (result < value)
+            //	throw new OverflowException("The value " + value + " does not fit into a byte with the given index " + index);
         }
     }
 }

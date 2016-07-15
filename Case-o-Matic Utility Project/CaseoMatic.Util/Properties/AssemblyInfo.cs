@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CaseoMatic.Util")]
+[assembly: AssemblyTitle("Caseomatic.Util")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Case-o-Matic")]
-[assembly: AssemblyProduct("CaseoMatic.Util")]
+[assembly: AssemblyProduct("Caseomatic.Util")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

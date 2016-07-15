@@ -7,8 +7,8 @@
     <ProjectGuid>{4224C2F5-0D02-4458-B15A-FE22348D2B4A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CaseoMatic.Util</RootNamespace>
-    <AssemblyName>CaseoMatic.Util</AssemblyName>
+    <RootNamespace>Caseomatic.Util</RootNamespace>
+    <AssemblyName>Caseomatic.Util</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -33,13 +33,21 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Reaction\VS projects\Reaction.Core\Binaries\Debug\UnityEngine.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConcurrentDictionary.cs" />
-    <Compile Include="ConcurrentStack.cs" />
-    <Compile Include="ImmutableArray.cs" />
+    <Compile Include="Geometry\Collider.cs" />
+    <Compile Include="Collections\ConcurrentDictionary.cs" />
+    <Compile Include="Collections\ConcurrentStack.cs" />
+    <Compile Include="Collections\ImmutableArray.cs" />
+    <Compile Include="Geometry\CubeCollider.cs" />
+    <Compile Include="Geometry\CylinderCollider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RNG.cs" />
+    <Compile Include="Geometry\Vector3.cs" />
     <Compile Include="VectorByte.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

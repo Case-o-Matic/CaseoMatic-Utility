@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Text;
 
-namespace CaseoMatic.Util
+namespace Caseomatic.Util
 {
     public class ConcurrentDictionary<TKey, TValue>
     {
